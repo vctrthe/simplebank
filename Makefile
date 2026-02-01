@@ -1,22 +1,55 @@
+help:
+	@echo "Makefile commands:"
+	@echo "  postgres      - Start a PostgreSQL Docker container"
+	@echo "  createdb      - Create the simple_bank database"
+	@echo "  dropdb        - Drop the simple_bank database"
+	@echo "  migrateup     - Apply all up database migrations"
+	@echo "  migratedown   - Apply all down database migrations"
+	@echo "  sqlc          - Generate Go code from SQL queries"
+	@echo "  test          - Run all tests with coverage"
+	@echo "  serve         - Run the main application"
+	@echo "  dev           - Start development server with live reload"
+
 postgres:
+	@echo "Starting PostgreSQL Docker container..."
 	docker run --name micro-pg -e POSTGRES_USER=root -e POSTGRES_PASSWORD=root -e POSTGRES_DB=simple_bank -p 5433:5432 -d postgres:17-alpine
 
 createdb:
+	@echo "Creating the simple_bank database..."
 	docker exec -it micro-pg createdb --username=root --owner=root simple_bank
 
 dropdb:
+	@echo "Dropping the simple_bank database..."
 	docker exec -it micro-pg dropdb simple_bank
 
 migrateup:
-	migrate -path db/migrations -database "postgresql://root:root@localhost:5433/simple_bank?sslmode=disable" -verbose up
+	@echo "Applying all up migrations..."
+	migrate -path db/migrations -database "postgresql://postgres:postgres@localhost:5432/simple_bank?sslmode=disable" -verbose up
 
 migratedown:
-	migrate -path db/migrations -database "postgresql://root:root@localhost:5433/simple_bank?sslmode=disable" -verbose down
+	@echo "Applying all down migrations..."
+	migrate -path db/migrations -database "postgresql://postgres:postgres@localhost:5432/simple_bank?sslmode=disable" -verbose down
 
 sqlc:
+	@echo "Generating Go code from SQL queries..."
 	sqlc generate
 
 test:
+	@echo "Running tests..."
 	go test -v -cover ./...
 
-.PHONY: createdb dropdb postgres migrateup migratedown sqlc test
+serve:
+	@echo "Starting the application..."
+	go run main.go
+
+AIR := $(HOME)/go/bin/air
+dev:
+	@echo "Starting development server with live reload..."
+	@if [ -x "$(AIR)" ]; then \
+		$(AIR); \
+	else \
+		echo "Air not installed. Running without auto-reload..."; \
+		go run main.go; \
+	fi
+
+.PHONY: createdb dropdb postgres migrateup migratedown sqlc test serve help dev
