@@ -48,6 +48,10 @@ test:
 	@echo "Running tests..."
 	go test -v -cover ./...
 
+testci:
+	@echo "Running CI tests (excluding integration tests)..."
+	go test -v -cover $(shell go list ./... | grep -v /db/sqlc)
+
 serve:
 	@echo "Starting the application..."
 	go run main.go
@@ -62,4 +66,4 @@ dev:
 		go run main.go; \
 	fi
 
-.PHONY: createdb dropdb postgres migrateup migratedown sqlc test serve help dev mock
+.PHONY: createdb dropdb postgres migrateup migratedown sqlc test testci serve help dev mock
