@@ -4,7 +4,9 @@ help:
 	@echo "  createdb      - Create the simple_bank database"
 	@echo "  dropdb        - Drop the simple_bank database"
 	@echo "  migrateup     - Apply all up database migrations"
+	@echo "  migrateup1    - Apply one up database migration"
 	@echo "  migratedown   - Apply all down database migrations"
+	@echo "  migratedown1  - Apply one down database migration"
 	@echo "  sqlc          - Generate Go code from SQL queries"
 	@echo "  test          - Run all tests with coverage"
 	@echo "  serve         - Run the main application"
@@ -27,9 +29,17 @@ migrateup:
 	@echo "Applying all up migrations..."
 	migrate -path db/migrations -database "postgresql://postgres:postgres@localhost:5432/simple_bank?sslmode=disable" -verbose up
 
+migrateup1:
+	@echo "Applying one up migration..."
+	migrate -path db/migrations -database "postgresql://postgres:postgres@localhost:5432/simple_bank?sslmode=disable" -verbose up 1
+
 migratedown:
 	@echo "Applying all down migrations..."
 	migrate -path db/migrations -database "postgresql://postgres:postgres@localhost:5432/simple_bank?sslmode=disable" -verbose down
+
+migratedown1:
+	@echo "Applying one down migration..."
+	migrate -path db/migrations -database "postgresql://postgres:postgres@localhost:5432/simple_bank?sslmode=disable" -verbose down 1
 
 sqlc:
 	@echo "Generating Go code from SQL queries..."
@@ -66,4 +76,4 @@ dev:
 		go run main.go; \
 	fi
 
-.PHONY: createdb dropdb postgres migrateup migratedown sqlc test testci serve help dev mock
+.PHONY: createdb dropdb postgres migrateup migrateup1 migratedown migratedown1 sqlc test testci serve help dev mock
