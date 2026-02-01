@@ -9,6 +9,7 @@ help:
 	@echo "  test          - Run all tests with coverage"
 	@echo "  serve         - Run the main application"
 	@echo "  dev           - Start development server with live reload"
+	@echo "  mock          - Generate mock implementations for interfaces"
 
 postgres:
 	@echo "Starting PostgreSQL Docker container..."
@@ -34,6 +35,15 @@ sqlc:
 	@echo "Generating Go code from SQL queries..."
 	sqlc generate
 
+MOCK := $(HOME)/go/bin/mockgen
+mock:
+	@echo "Generating mock implementations..."
+	@if [ -x "$(MOCK)" ]; then \
+		$(MOCK) -destination=db/mock/store.go -package mockdbgithub.com/vctrthe/simplebank/db/sqlc Store; \
+	else \
+		echo "mockgen not installed. Please install it by running 'go install go.uber.org/mock/mockgen@latest'"; \
+	fi
+
 test:
 	@echo "Running tests..."
 	go test -v -cover ./...
@@ -52,4 +62,4 @@ dev:
 		go run main.go; \
 	fi
 
-.PHONY: createdb dropdb postgres migrateup migratedown sqlc test serve help dev
+.PHONY: createdb dropdb postgres migrateup migratedown sqlc test serve help dev mock
