@@ -49,7 +49,7 @@ MOCK := $(HOME)/go/bin/mockgen
 mock:
 	@echo "Generating mock implementations..."
 	@if [ -x "$(MOCK)" ]; then \
-		$(MOCK) -destination=db/mock/store.go -package mockdbgithub.com/vctrthe/simplebank/db/sqlc Store; \
+		$(MOCK) -destination=db/mock/store.go -package mockdb github.com/vctrthe/simplebank/db/sqlc Store; \
 	else \
 		echo "mockgen not installed. Please install it by running 'go install go.uber.org/mock/mockgen@latest'"; \
 	fi
