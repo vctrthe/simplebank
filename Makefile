@@ -1,3 +1,5 @@
+DB_URL=postgresql://postgres:postgres@localhost:5432/simple_bank?sslmode=disable
+
 help:
 	@echo "Makefile commands:"
 	@echo "  postgres      - Start a PostgreSQL Docker container"
@@ -7,15 +9,18 @@ help:
 	@echo "  migrateup1    - Apply one up database migration"
 	@echo "  migratedown   - Apply all down database migrations"
 	@echo "  migratedown1  - Apply one down database migration"
+	@echo "  new_migration - Create a new database migration (usage: make new_migration name=your_migration_name)"
 	@echo "  sqlc          - Generate Go code from SQL queries"
 	@echo "  test          - Run all tests with coverage"
 	@echo "  serve         - Run the main application"
 	@echo "  dev           - Start development server with live reload"
 	@echo "  mock          - Generate mock implementations for interfaces"
+	@echo "  db_doc        - Generate database documentation from DBML"
+	@echo "  db_schema     - Generate SQL schema from DBML"
 
 postgres:
 	@echo "Starting PostgreSQL Docker container..."
-	docker run --name micro-pg -e POSTGRES_USER=root -e POSTGRES_PASSWORD=root -e POSTGRES_DB=simple_bank -p 5433:5432 -d postgres:17-alpine
+	docker run --name micro-pg -e POSTGRES_USER=root -e POSTGRES_PASSWORD=root -e POSTGRES_DB=simple_bank -p 5432:5432 -d postgres:17-alpine
 
 createdb:
 	@echo "Creating the simple_bank database..."
@@ -27,19 +32,23 @@ dropdb:
 
 migrateup:
 	@echo "Applying all up migrations..."
-	migrate -path db/migrations -database "postgresql://postgres:postgres@localhost:5432/simple_bank?sslmode=disable" -verbose up
+	migrate -path db/migrations -database "$(DB_URL)" -verbose up
 
 migrateup1:
 	@echo "Applying one up migration..."
-	migrate -path db/migrations -database "postgresql://postgres:postgres@localhost:5432/simple_bank?sslmode=disable" -verbose up 1
+	migrate -path db/migrations -database "$(DB_URL)" -verbose up 1
 
 migratedown:
 	@echo "Applying all down migrations..."
-	migrate -path db/migrations -database "postgresql://postgres:postgres@localhost:5432/simple_bank?sslmode=disable" -verbose down
+	migrate -path db/migrations -database "$(DB_URL)" -verbose down
 
 migratedown1:
 	@echo "Applying one down migration..."
-	migrate -path db/migrations -database "postgresql://postgres:postgres@localhost:5432/simple_bank?sslmode=disable" -verbose down 1
+	migrate -path db/migrations -database "$(DB_URL)" -verbose down 1
+
+new_migration:
+	@echo "Creating a new migration..."
+	migrate create -ext sql -dir db/migrations -seq $(name)
 
 sqlc:
 	@echo "Generating Go code from SQL queries..."
@@ -76,4 +85,12 @@ dev:
 		go run main.go; \
 	fi
 
-.PHONY: createdb dropdb postgres migrateup migrateup1 migratedown migratedown1 sqlc test testci serve help dev mock
+db_doc:
+	@echo "Generating database documentation..."
+	dbdocs build doc/db.dbml
+
+db_schema:
+	@echo "Generating database schema from DBML..."
+	dbml2sql --postgres -o doc/schema.sql doc/db.dbml
+
+.PHONY: createdb dropdb postgres migrateup migrateup1 migratedown migratedown1 new_migration sqlc test testci serve help dev mock db_doc db_schema

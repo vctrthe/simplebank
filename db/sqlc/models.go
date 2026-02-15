@@ -5,8 +5,9 @@
 package db
 
 import (
-	"database/sql"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Account struct {
@@ -25,6 +26,17 @@ type Entry struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+type Session struct {
+	ID           uuid.UUID `json:"id"`
+	Username     string    `json:"username"`
+	RefreshToken string    `json:"refresh_token"`
+	UserAgent    string    `json:"user_agent"`
+	ClientIp     string    `json:"client_ip"`
+	IsBlocked    bool      `json:"is_blocked"`
+	ExpiresAt    time.Time `json:"expires_at"`
+	CreatedAt    time.Time `json:"created_at"`
+}
+
 type Transfer struct {
 	ID            int64 `json:"id"`
 	FromAccountID int64 `json:"from_account_id"`
@@ -35,10 +47,11 @@ type Transfer struct {
 }
 
 type User struct {
-	Username          string       `json:"username"`
-	HashedPassword    string       `json:"hashed_password"`
-	FullName          string       `json:"full_name"`
-	Email             string       `json:"email"`
-	PasswordChangedAt sql.NullTime `json:"password_changed_at"`
-	CreatedAt         time.Time    `json:"created_at"`
+	Username          string    `json:"username"`
+	HashedPassword    string    `json:"hashed_password"`
+	FullName          string    `json:"full_name"`
+	Email             string    `json:"email"`
+	PasswordChangedAt time.Time `json:"password_changed_at"`
+	CreatedAt         time.Time `json:"created_at"`
+	Role              string    `json:"role"`
 }
