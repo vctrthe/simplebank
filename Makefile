@@ -17,6 +17,7 @@ help:
 	@echo "  mock          - Generate mock implementations for interfaces"
 	@echo "  db_doc        - Generate database documentation from DBML"
 	@echo "  db_schema     - Generate SQL schema from DBML"
+	@echo "  proto         - Generate gRPC code from proto files"
 
 postgres:
 	@echo "Starting PostgreSQL Docker container..."
@@ -93,4 +94,9 @@ db_schema:
 	@echo "Generating database schema from DBML..."
 	dbml2sql --postgres -o doc/schema.sql doc/db.dbml
 
-.PHONY: createdb dropdb postgres migrateup migrateup1 migratedown migratedown1 new_migration sqlc test testci serve help dev mock db_doc db_schema
+proto:
+	@echo "Generating gRPC code from proto files..."
+	rm -f pb/*.go
+	protoc --proto_path=proto --go_out=pb --go_opt=paths=source_relative --go-grpc_out=pb --go-grpc_opt=paths=source_relative proto/*.proto
+
+.PHONY: createdb dropdb postgres migrateup migrateup1 migratedown migratedown1 new_migration sqlc test testci serve help dev mock db_doc db_schema proto
