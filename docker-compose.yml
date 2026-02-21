@@ -1,0 +1,49 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=simple_bank
+    ports:
+      - "5433:5432"
+    volumes:
+      - data-volume:/var/lib/postgresql/data
+    networks:
+      - api-net
+  
+  rds:
+    image: redis:8.4.0-alpine
+    networks:
+      - api-net
+  
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+      - "9091:9091"
+    environment:
+      - DB_SOURCE=postgresql://root:secret@db:5432/simple_bank?sslmode=disable
+      - REDIS_ADDRESS=rds:6379
+    depends_on:
+      - db
+      - rds
+    networks:
+      - api-net
+    entrypoint:
+      [
+        "/app/wait-for.sh",
+        "db:5432",
+        "--",
+        "/app/start.sh"
+      ]
+    command: [ "/app/main" ]
+
+volumes:
+  data-volume:
+
+networks:
+  api-net:
+    driver: bridge
