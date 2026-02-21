@@ -10,6 +10,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.8
 	github.com/jackc/pgx/v5 v5.8.0
 	github.com/lib/pq v1.10.9
+	github.com/rakyll/statik v0.1.8
 	github.com/spf13/viper v1.21.0
 	go.uber.org/mock v0.5.0
 	golang.org/x/crypto v0.47.0
