@@ -11,8 +11,8 @@ COPY --from=builder /app/main .
 COPY app.env .
 COPY start.sh .
 COPY wait-for.sh .
-COPY db/migration ./db/migration
+COPY db/migrations ./db/migrations
 
-EXPOSE 8081 9091
+EXPOSE 8080 9090
 CMD [ "/app/main" ]
 ENTRYPOINT [ "/app/start.sh" ]

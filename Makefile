@@ -1,8 +1,9 @@
-DB_URL=postgresql://postgres:postgres@localhost:5432/simple_bank?sslmode=disable
+DB_URL=postgresql://root:secret@localhost:5433/simple_bank?sslmode=disable
 
 help:
 	@echo "Makefile commands:"
 	@echo "  postgres      - Start a PostgreSQL Docker container"
+	@echo "  redis         - Start a Redis Docker container"
 	@echo "  createdb      - Create the simple_bank database"
 	@echo "  dropdb        - Drop the simple_bank database"
 	@echo "  migrateup     - Apply all up database migrations"
@@ -22,15 +23,18 @@ help:
 
 postgres:
 	@echo "Starting PostgreSQL Docker container..."
-	docker run --name micro-pg -e POSTGRES_USER=root -e POSTGRES_PASSWORD=root -e POSTGRES_DB=simple_bank -p 5432:5432 -d postgres:17-alpine
+	docker run --name simplebank-db -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -e POSTGRES_DB=simple_bank -p 5433:5432 -d postgres:17-alpine
+
+redis:
+	@echo "Starting Redis Docker container..."
+	docker run --name simplebank-redis -p 6379:6379 -d redis:8.4.0-alpine
 
 createdb:
 	@echo "Creating the simple_bank database..."
-	docker exec -it micro-pg createdb --username=root --owner=root simple_bank
-
+	docker exec -it simplebank-db createdb --username=root --owner=root simple_bank
 dropdb:
 	@echo "Dropping the simple_bank database..."
-	docker exec -it micro-pg dropdb simple_bank
+	docker exec -it simplebank-db dropdb simple_bank
 
 migrateup:
 	@echo "Applying all up migrations..."
@@ -67,7 +71,7 @@ mock:
 
 test:
 	@echo "Running tests..."
-	go test -v -cover ./...
+	go test -v -cover -short ./...
 
 testci:
 	@echo "Running CI tests (excluding integration tests)..."
@@ -106,4 +110,4 @@ evans:
 	@echo "Starting Evans CLI..."
 	evans --host localhost --port 9091 -r repl
 
-.PHONY: createdb dropdb postgres migrateup migrateup1 migratedown migratedown1 new_migration sqlc test testci serve help dev mock db_doc db_schema proto evans
+.PHONY: createdb dropdb postgres redis migrateup migrateup1 migratedown migratedown1 new_migration sqlc test testci serve help dev mock db_doc db_schema proto evans
