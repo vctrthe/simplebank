@@ -27,7 +27,7 @@ postgres:
 
 redis:
 	@echo "Starting Redis Docker container..."
-	docker run --name simplebank-redis -p 6379:6379 -d redis:8.4.0-alpine
+	docker run --name simplebank-redis -p 6380:6379 -d redis:8.4.0-alpine
 
 createdb:
 	@echo "Creating the simple_bank database..."
