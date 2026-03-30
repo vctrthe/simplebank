@@ -1,6 +1,6 @@
 -- SQL dump generated using DBML (dbml.dbdiagram.io)
 -- Database: PostgreSQL
--- Generated at: 2026-02-15T16:25:30.028Z
+-- Generated at: 2026-03-30T16:30:32.318Z
 
 CREATE TABLE "users" (
   "username" varchar PRIMARY KEY,
@@ -8,8 +8,19 @@ CREATE TABLE "users" (
   "hashed_password" varchar NOT NULL,
   "full_name" varchar NOT NULL,
   "email" varchar UNIQUE NOT NULL,
+  "is_email_verified" boolean NOT NULL DEFAULT false,
   "password_changed_at" timestamptz DEFAULT '0001-01-01 00:00:00Z',
-  "created_at" timestamptz NOT NULL DEFAULT 'now()'
+  "created_at" timestamptz NOT NULL DEFAULT (now())
+);
+
+CREATE TABLE "verify_emails" (
+  "id" bigserial PRIMARY KEY,
+  "username" varchar NOT NULL,
+  "email" varchar NOT NULL,
+  "secret_code" varchar NOT NULL,
+  "is_used" boolean NOT NULL DEFAULT false,
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "expired_at" timestamptz NOT NULL DEFAULT (now() + interval '15 minute')
 );
 
 CREATE TABLE "accounts" (
@@ -17,14 +28,14 @@ CREATE TABLE "accounts" (
   "owner" varchar NOT NULL,
   "balance" bigint NOT NULL,
   "currency" varchar NOT NULL,
-  "created_at" timestamptz NOT NULL DEFAULT 'now()'
+  "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "entries" (
   "id" bigserial PRIMARY KEY,
   "account_id" bigint NOT NULL,
   "amount" bigint NOT NULL,
-  "created_at" timestamptz NOT NULL DEFAULT 'now()'
+  "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "transfers" (
@@ -32,7 +43,7 @@ CREATE TABLE "transfers" (
   "from_account_id" bigint NOT NULL,
   "to_account_id" bigint NOT NULL,
   "amount" bigint NOT NULL,
-  "created_at" timestamptz NOT NULL DEFAULT 'now()'
+  "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "sessions" (
@@ -43,7 +54,7 @@ CREATE TABLE "sessions" (
   "client_ip" varchar NOT NULL,
   "is_blocked" boolean NOT NULL DEFAULT false,
   "expires_at" timestamptz NOT NULL,
-  "created_at" timestamptz NOT NULL DEFAULT 'now()'
+  "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE INDEX ON "accounts" ("owner");
@@ -61,6 +72,8 @@ CREATE INDEX ON "transfers" ("from_account_id", "to_account_id");
 COMMENT ON COLUMN "entries"."amount" IS 'Can be negative or positive';
 
 COMMENT ON COLUMN "transfers"."amount" IS 'must be positive';
+
+ALTER TABLE "verify_emails" ADD FOREIGN KEY ("username") REFERENCES "users" ("username") DEFERRABLE INITIALLY IMMEDIATE;
 
 ALTER TABLE "accounts" ADD FOREIGN KEY ("owner") REFERENCES "users" ("username") DEFERRABLE INITIALLY IMMEDIATE;
 

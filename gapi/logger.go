@@ -60,10 +60,13 @@ func (rec *ResponseRecorder) Write(body []byte) (int, error) {
 }
 
 func HttpLogger(handler http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		startTime := time.Now()
-		rec := &ResponseRecorder{ResponseWriter: w}
-		handler.ServeHTTP(rec, r)
+		rec := &ResponseRecorder{
+			ResponseWriter: res,
+			StatusCode:     http.StatusOK,
+		}
+		handler.ServeHTTP(rec, req)
 		duration := time.Since(startTime)
 
 		logger := log.Info()
@@ -73,8 +76,8 @@ func HttpLogger(handler http.Handler) http.Handler {
 
 		logger.
 			Str("protocol", "http").
-			Str("method", r.Method).
-			Str("path", r.URL.Path).
+			Str("method", req.Method).
+			Str("path", req.URL.Path).
 			Int("status_code", rec.StatusCode).
 			Str("status_text", http.StatusText(rec.StatusCode)).
 			Dur("duration", duration).
