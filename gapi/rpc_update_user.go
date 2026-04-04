@@ -2,10 +2,10 @@ package gapi
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/lib/pq"
 	db "github.com/vctrthe/simplebank/db/sqlc"
 	"github.com/vctrthe/simplebank/pb"
 	"github.com/vctrthe/simplebank/util"
@@ -61,14 +61,12 @@ func (server *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest)
 
 	user, err := server.store.UpdateUser(ctx, arg)
 	if err != nil {
-		if pqErr, ok := err.(*pq.Error); ok {
-			switch pqErr.Code.Name() {
-			case "unique_violation":
-				return nil, status.Errorf(codes.AlreadyExists, "username or email already exists")
-			}
+		if err.Error() == "user not found" || errors.Is(err, db.ErrRecordNotFound) {
+			return nil, status.Errorf(codes.NotFound, "user not found")
 		}
 		return nil, status.Errorf(codes.Internal, "failed to update user: %s", err)
 	}
+
 	rsp := &pb.UpdateUserResponse{
 		User: convertUser(user),
 	}

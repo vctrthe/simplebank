@@ -65,6 +65,7 @@ mock:
 	@echo "Generating mock implementations..."
 	@if [ -x "$(MOCK)" ]; then \
 		$(MOCK) -destination=db/mock/store.go -package mockdb github.com/vctrthe/simplebank/db/sqlc Store; \
+		$(MOCK) -destination=worker/mock/distributor.go -package mockwk github.com/vctrthe/simplebank/worker TaskDistributor; \
 	else \
 		echo "mockgen not installed. Please install it by running 'go install go.uber.org/mock/mockgen@latest'"; \
 	fi
