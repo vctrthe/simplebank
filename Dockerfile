@@ -10,7 +10,9 @@ WORKDIR /app
 COPY --from=builder /app/main .
 COPY app.env .
 COPY start.sh .
+RUN chmod +x start.sh
 COPY wait-for.sh .
+RUN chmod +x wait-for.sh
 COPY db/migrations ./db/migrations
 
 EXPOSE 8080 9090
