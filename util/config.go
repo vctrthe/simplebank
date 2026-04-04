@@ -8,6 +8,9 @@ import (
 
 type Config struct {
 	Environment          string        `mapstructure:"ENVIRONMENT"`
+	AllowedOrigins       []string      `mapstructure:"ALLOWED_ORIGINS"`
+	AllowedMethods       []string      `mapstructure:"ALLOWED_METHODS"`
+	AllowedHeaders       []string      `mapstructure:"ALLOWED_HEADERS"`
 	DBDriver             string        `mapstructure:"DB_DRIVER"`
 	DBSource             string        `mapstructure:"DB_SOURCE"`
 	MigrationURL         string        `mapstructure:"MIGRATION_URL"`
