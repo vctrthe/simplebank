@@ -1,11 +1,7 @@
 @import 'primeicons/primeicons.css';
 @import 'primeflex/primeflex.css';
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+* {
   font-family:
     Inter,
     -apple-system,
@@ -19,6 +15,13 @@
     'Droid Sans',
     'Helvetica Neue',
     sans-serif;
+}
+
+#app {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-weight: normal;
 }
 
 a,
